@@ -1,0 +1,24 @@
+--- first.txt
++++ second.txt
+@@ -1 +0,0 @@
+-abcdef
+@@ -3,0 +3 @@
++abcdef
+@@ -5 +4,0 @@
+-abcdef
+@@ -17,0 +17 @@
++145 Shoreditch High Street, London, E1 6JE 
+@@ -19 +19,2 @@
+-Say the bells of Stepney.
++Folk tales of the runaway food type are found in Germany, the British Isles, and Eastern Europe, as well the United States.
++Cyrillic: колобо́к
+@@ -22 +23 @@
+-Klouikloui, rings of fried almond butter as served in Benin
++Klouikloui, rings of fried peanut butter as served in Benin
+@@ -24,3 +25 @@
+-Extra line to be removed.
+-Extra line to be removed.
+-Extra line to be removed.
++The flavor of limited-release Japanese soda Pepsi Baobab was described as "liberating" by PepsiCo.
+@@ -29 +27,0 @@
+-The flavor of limited-release Japanese soda Pepsi Baobab was described as "liberating" by PepsiCo.

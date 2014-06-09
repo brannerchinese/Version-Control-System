@@ -16,7 +16,9 @@ def main():
         catalog = sorted([int(i) for i in os.listdir('.myvcs')])
         print(catalog)
         ordinal = catalog[-1] + 1
+    # Form diffs of files.
     content = ''
+    # Store diffs; 
     with open('.myvcs/' + str(ordinal), 'w') as f:
         f.write(content)
 
