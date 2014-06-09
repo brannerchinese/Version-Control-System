@@ -48,8 +48,8 @@ def patch(directory, diff_file, known_filename):
 
 def advance(recovered_filename, known_file, difftext):
     # Step through difftext and process each line (numbered from 1).
-    recovered_current_line = 1
-    known_current_line = 1
+    current_line = 1
+    last_current = 1
     recovered_file = []
     while True:
         try:
@@ -75,24 +75,26 @@ def advance(recovered_filename, known_file, difftext):
                     format(skip_how_many, insert_how_many))
             #
             # Copy any foregoing lines.
-            copy_to_line = int(to_skip[0]) - current_line + 1
-            print('current_line: {}, copy_to_line: {}'.
-                    format(current_line, copy_to_line))
-            for line in range(current_line, copy_to_line):
+            current_line = int(to_skip[0])
+            print('current_line: {}; last_current: {}'.
+                    format(current_line, last_current))
+            to_copy = current_line - last_current
+            if skip_how_many:
+                to_copy -= 1
+            print('lines to copy: {}'.format(to_copy))
+            last_current = current_line
+            print('Foregoing lines to print: {}'.format(to_copy))
+            for line in range(to_copy):
                 recovered_file.append(next(known_file))
                 print('copied line:\n    {}'.format(recovered_file[-1]))
-            current_line = copy_to_line
-            print('after copying lines, current_line is now {}'.
-                    format(current_line))
-            print('copy_to_line is now {}'.format(copy_to_line))
             #
             # Skip any lines to be skipped
             for line in range(skip_how_many):
-                _ = next(known_file)
+                try:
+                    _ = next(known_file)
+                except StopIteration:
+                    break
                 print('skipped line:\n    {}'.format(_))
-            current_line += skip_how_many
-            print('after skip calculation, current_line is now {}'.
-                    format(current_line))
             #
             # Add any new lines to be added
             while insert_how_many: 
