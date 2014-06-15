@@ -15,6 +15,10 @@ import collections
 myvcs_ignore = {'.myvcs', '.myvcs.py.swp', '__pycache__', 'myvcs.py'}
 
 def main():
+    # Get directory for current backups.
+    backup_dir = get_working_mvc_dir()
+    print(backup_dir)
+    os.mkdir(backup_dir)
     # Get list of all files in present directory.
     current_dir = os.getcwd()
     directories = collections.deque([current_dir])
@@ -26,10 +30,12 @@ def main():
         for f in all_files:
             if f in myvcs_ignore:
                 continue
-            print('\nfile: {}'.format(f))
+            print('\nfile:    {}'.format(f))
             full_path = os.path.normpath(os.path.join(next_dir, f))
-            print('file: {}'.format(full_path))
+            print('file:    {}'.
+                    format(full_path))
             if os.path.isdir(full_path):
+                print('new directory:', f)
                 directories.append(full_path)
                 print(directories, all_files)
 
