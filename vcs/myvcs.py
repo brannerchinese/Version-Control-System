@@ -14,7 +14,45 @@ import shutil
 
 myvcs_ignore = {'.myvcs', '.myvcs.py.swp', '__pycache__', 'myvcs.py'}
 
-def main():
+def main(args=None):
+    actions = {
+            'checkout': checkout,
+            'latest': checkout,
+            }
+    if not args:
+        new_backup()
+    else:
+        actions[args[0]](args[1:])
+    pass
+
+def checkout(snapshot=None):
+    if not snapshot:
+        # Get and check out highest-numbered snapshot.
+        snapshot = get_highest_snapshot()
+    else:
+        snapshot = snapshot[0]
+    print('snapshot: {}'.format(snapshot))
+
+def latest(args):
+    checkout()
+
+def get_highest_snapshot():
+    if not os.path.exists('.myvcs'):
+        print('Subdirectory .myvcs not found; exiting.')
+        sys.exit()
+    else:
+        # Use loop rather than comprehension so as to allow try-block.
+        catalog = []
+        for i in os.listdir('.myvcs'):
+            try:
+                catalog.append(int(i))
+            except ValueError:
+                continue
+        catalog.sort()
+        print('catalog: {}'.format(catalog))
+        return catalog[-1]
+
+def new_backup():
     # Get last backup dir and create directory for next backups, if needed.
     next_backup_dir = get_working_mvc_dir()
     print(next_backup_dir)
@@ -36,12 +74,6 @@ def main():
         next_dirs[:] = [i for i in next_dirs if i not in myvcs_ignore]
         files[:] = [i for i in files if i not in myvcs_ignore]
         print('next_dirs: {}'.format(next_dirs))
-#        if next_dirs:
-#            for old_dir in next_dirs:
-#                if old_dir == 'lumpybones':
-#                    print('here')
-#                new_dir = os.path.join(next_backup_dir, old_dir)
-#                os.mkdir(new_dir)
         if files:
             if present not in myvcs_ignore:
                 copy_to_dir = os.path.join(next_backup_dir, present)
@@ -99,4 +131,5 @@ def defunct():
                 print(directories, all_files)
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1:])
+
