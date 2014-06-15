@@ -18,12 +18,16 @@ def main(args=None):
     actions = {
             'checkout': checkout,
             'latest': checkout,
+            'backup': new_backup,
             }
     if not args:
         new_backup()
     else:
-        actions[args[0]](args[1:])
-    pass
+        try:
+            actions[args[0]](args[1:])
+        except KeyError:
+            print('Command-line argument {} not found; exiting.'.
+                    format(args[0]))
 
 def checkout(snapshot=None):
     if not snapshot:
@@ -52,7 +56,7 @@ def get_highest_snapshot():
         print('catalog: {}'.format(catalog))
         return catalog[-1]
 
-def new_backup():
+def new_backup(args=None):
     # Get last backup dir and create directory for next backups, if needed.
     next_backup_dir = get_working_mvc_dir()
     print(next_backup_dir)
