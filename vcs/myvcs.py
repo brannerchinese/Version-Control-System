@@ -43,7 +43,7 @@ def checkout(snapshot=None):
         copy_files(source=source, destination='current_dir', snapshot=snapshot)
         print('Checked out snapshot {}.'.format(snapshot))
     else:
-        print('Snapshot {} does not exist; exiting.')
+        print('Snapshot {} does not exist; exiting.'.format(snapshot))
         sys.exit()
 
 def latest(args):
