@@ -34,8 +34,11 @@ def checkout(snapshot=None):
         # Get and check out highest-numbered snapshot.
         snapshot = get_highest_snapshot()
     else:
-        snapshot = snapshot[0]
+        snapshot = int(snapshot[0])
     print('snapshot: {}'.format(snapshot))
+    new_backup()
+    new_backup(source=os.path.join('.myvcs', str(snapshot)),
+            destination=os.getcwd())
 
 def latest(args):
     checkout()
@@ -53,24 +56,26 @@ def get_highest_snapshot():
             except ValueError:
                 continue
         catalog.sort()
-        print('catalog: {}'.format(catalog))
+#        print('catalog: {}'.format(catalog))
         return catalog[-1]
 
-def new_backup(args=None):
+def new_backup(args=None, source=None, destination=None):
     # Get last backup dir and create directory for next backups, if needed.
-    next_backup_dir = get_working_mvc_dir()
-    print(next_backup_dir)
+    if not destination:
+        destination = get_working_mvc_dir()
+    print(destination)
     #
     # Traverse subdirectories.
-    current_dir = os.getcwd()
-    print('current_dir:', current_dir)
-    walker = os.walk(current_dir)
+    if not source:
+        source = os.getcwd()
+    print('source:', source)
+    walker = os.walk(source)
     while True:
         try:
             present, next_dirs, files = next(walker)
         except StopIteration:
             break
-        present = present.replace(current_dir, '').lstrip('/')
+        present = present.replace(source, '').lstrip('/')
         print('present: ', present)
         if present in myvcs_ignore:
             print('    continuing because {} in myvcs_ignore'.format(present))
@@ -80,14 +85,17 @@ def new_backup(args=None):
         print('next_dirs: {}'.format(next_dirs))
         if files:
             if present not in myvcs_ignore:
-                copy_to_dir = os.path.join(next_backup_dir, present)
+                copy_to_dir = os.path.join(destination, present)
                 if not os.path.exists(copy_to_dir):
                     os.mkdir(copy_to_dir)
                 print('copy_to_dir:', copy_to_dir)
                 for f in files:
                     print('    now trying {}'.format(f))
-                    shutil.copy2(os.path.join(present, f), copy_to_dir)
-    print('Done.')
+                    try:
+                        shutil.copy2(os.path.join(present, f), copy_to_dir)
+                    except shutil.SameFileError:
+                        continue
+    print('Done backing up current directory.')
 
 def get_working_mvc_dir():
     # QQQ This should happen only on initialization.
