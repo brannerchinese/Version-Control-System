@@ -36,9 +36,17 @@ def checkout(snapshot=None):
     else:
         snapshot = int(snapshot[0])
     print('snapshot: {}'.format(snapshot))
+    # First back up current version of current_dir.
     copy_files()
-    copy_files(source=os.path.join('.myvcs', str(snapshot)),
-            destination=os.getcwd())
+    # Then replace it with desired snapshot (if it exists).
+    source = os.path.join('.myvcs', str(snapshot))
+    print('source:', source)
+    if os.path.exists(source):
+        print('here')
+        copy_files(source=source, destination='current_dir')
+    else:
+        print('Snapshot {} does not exist; exiting.')
+        sys.exit()
 
 def latest(args):
     checkout()
@@ -59,44 +67,22 @@ def get_highest_snapshot():
 #        print('catalog: {}'.format(catalog))
         return catalog[-1]
 
+
 def copy_files(args=None, source=None, destination=None):
     if not source:
-        source = os.getcwd()
+        source = 'current_dir'
+        if not os.path.exists('current_dir'):
+            print('Directory current_dir does not exist; exiting')
+            sys.exit()
     print('source:', source)
     # Get last backup dir and create directory for next backups, if needed.
     if not destination:
-        destination = get_working_mvc_dir()
+        destination = os.path.join('.myvcs', get_working_mvc_dir())
     print('destination:', destination)
-    #
-    # Traverse subdirectories.
-    walker = os.walk(source)
-    while True:
-        try:
-            present, next_dirs, files = next(walker)
-        except StopIteration:
-            break
-        present = present.replace(source, '').lstrip('/')
-        print('present: ', present)
-        if present in myvcs_ignore:
-            print('    continuing because {} in myvcs_ignore'.format(present))
-            continue
-        next_dirs[:] = [i for i in next_dirs if i not in myvcs_ignore]
-        files[:] = [i for i in files if i not in myvcs_ignore]
-        print('next_dirs: {}'.format(next_dirs))
-        if files:
-            if present not in myvcs_ignore:
-                copy_to_dir = os.path.join(destination, present)
-                if not os.path.exists(copy_to_dir):
-                    os.mkdir(copy_to_dir)
-                print('copy_to_dir:', copy_to_dir)
-                for f in files:
-                    print('    now trying {}'.format(f))
-                    immediate_source = os.path.join(source, present, f)
-                    print('    immediate_source:', immediate_source)
-                    try:
-                        shutil.copy2(immediate_source, copy_to_dir)
-                    except shutil.SameFileError:
-                        continue
+    # Copy whole directory.
+    if os.path.exists(destination):
+        shutil.rmtree(destination)
+    x = shutil.copytree(source, destination)
     print('Done backing up current directory.\n')
 
 def get_working_mvc_dir():
@@ -114,15 +100,9 @@ def get_working_mvc_dir():
             print('Invalid value of .myvcs/HEAD: {}'.format(head))
     # Set HEAD to new working directory.
     head += 1
-    head_dir = os.path.join('.myvcs', str(head))
-    try:
-        os.mkdir(head_dir)
-    except Exception as e:
-        print(e)
-        sys.exit(1)
     with open(os.path.join('.myvcs', 'HEAD'), 'w') as f:
         f.write(str(head))
-    return head_dir
+    return str(head)
 
 def defunct():
     # Get list of all files in present directory.
