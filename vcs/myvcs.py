@@ -19,6 +19,7 @@ def main(args=None):
             'checkout': checkout,
             'latest': checkout,
             'backup': copy_files,
+            'current': print_current_head,
             }
     if not args:
         copy_files()
@@ -30,31 +31,30 @@ def main(args=None):
                     format(args[0]))
 
 def checkout(snapshot=None):
+    """Copy a given snapshot into current_dir."""
     if not snapshot:
         # Get and check out highest-numbered snapshot.
         snapshot = get_highest_snapshot()
     else:
         snapshot = int(snapshot[0])
-    print('snapshot: {}'.format(snapshot))
-    # First back up current version of current_dir.
-    copy_files()
     # Then replace it with desired snapshot (if it exists).
     source = os.path.join('.myvcs', str(snapshot))
-    print('source:', source)
     if os.path.exists(source):
-        print('here')
-        copy_files(source=source, destination='current_dir')
+        copy_files(source=source, destination='current_dir', snapshot=snapshot)
+        print('Checked out snapshot {}.'.format(snapshot))
     else:
         print('Snapshot {} does not exist; exiting.')
         sys.exit()
 
 def latest(args):
+    """Copy current snapshot into current_dir."""
     checkout()
 
 def get_highest_snapshot():
+    """Find number of highest-numbered snapshot; return as int."""
     if not os.path.exists('.myvcs'):
-        print('Subdirectory .myvcs not found; exiting.')
-        sys.exit()
+        os.mkdir('.myvcs')
+        return -1
     else:
         # Use loop rather than comprehension so as to allow try-block.
         catalog = []
@@ -64,45 +64,32 @@ def get_highest_snapshot():
             except ValueError:
                 continue
         catalog.sort()
-#        print('catalog: {}'.format(catalog))
         return catalog[-1]
 
-
-def copy_files(args=None, source=None, destination=None):
+def copy_files(args=None, source=None, destination=None, snapshot=None):
+    """Copy all files between source and destination."""
     if not source:
         source = 'current_dir'
         if not os.path.exists('current_dir'):
             print('Directory current_dir does not exist; exiting')
             sys.exit()
-    print('source:', source)
     # Get last backup dir and create directory for next backups, if needed.
     if not destination:
-        destination = os.path.join('.myvcs', get_working_mvc_dir())
-    print('destination:', destination)
+        snapshot = get_highest_snapshot() + 1
+        destination = os.path.join('.myvcs', str(snapshot))
     # Copy whole directory.
     if os.path.exists(destination):
         shutil.rmtree(destination)
-    x = shutil.copytree(source, destination)
-    print('Done backing up current directory.\n')
-
-def get_working_mvc_dir():
-    # QQQ This should happen only on initialization.
-    if '.myvcs' not in os.listdir():
-        os.mkdir('.myvcs')
-        head = -1
-    else:
-        # Read .myvcs/HEAD and make sure that directory exists.
-        if os.path.exists(os.path.join('.myvcs', 'HEAD')):
-            with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
-                head = int(f.read())
-        if not (os.path.exists(os.path.join('.myvcs', str(head))) or
-                os.path.isdir(os.path.join('.myvcs', str(head)))):
-            print('Invalid value of .myvcs/HEAD: {}'.format(head))
-    # Set HEAD to new working directory.
-    head += 1
+    shutil.copytree(source, destination)
+    print('Copied files from\n    {}\nto\n    {}.'.
+            format(source, destination))
     with open(os.path.join('.myvcs', 'HEAD'), 'w') as f:
-        f.write(str(head))
-    return str(head)
+        f.write(str(snapshot))
+
+def print_current_head(args=None):
+    with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
+        head = f.read()
+    print(head)
 
 def defunct():
     # Get list of all files in present directory.
