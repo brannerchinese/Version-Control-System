@@ -18,10 +18,10 @@ def main(args=None):
     actions = {
             'checkout': checkout,
             'latest': checkout,
-            'backup': new_backup,
+            'backup': copy_files,
             }
     if not args:
-        new_backup()
+        copy_files()
     else:
         try:
             actions[args[0]](args[1:])
@@ -36,8 +36,8 @@ def checkout(snapshot=None):
     else:
         snapshot = int(snapshot[0])
     print('snapshot: {}'.format(snapshot))
-    new_backup()
-    new_backup(source=os.path.join('.myvcs', str(snapshot)),
+    copy_files()
+    copy_files(source=os.path.join('.myvcs', str(snapshot)),
             destination=os.getcwd())
 
 def latest(args):
@@ -59,16 +59,16 @@ def get_highest_snapshot():
 #        print('catalog: {}'.format(catalog))
         return catalog[-1]
 
-def new_backup(args=None, source=None, destination=None):
-    # Get last backup dir and create directory for next backups, if needed.
-    if not destination:
-        destination = get_working_mvc_dir()
-    print(destination)
-    #
-    # Traverse subdirectories.
+def copy_files(args=None, source=None, destination=None):
     if not source:
         source = os.getcwd()
     print('source:', source)
+    # Get last backup dir and create directory for next backups, if needed.
+    if not destination:
+        destination = get_working_mvc_dir()
+    print('destination:', destination)
+    #
+    # Traverse subdirectories.
     walker = os.walk(source)
     while True:
         try:
@@ -91,11 +91,13 @@ def new_backup(args=None, source=None, destination=None):
                 print('copy_to_dir:', copy_to_dir)
                 for f in files:
                     print('    now trying {}'.format(f))
+                    immediate_source = os.path.join(source, present, f)
+                    print('    immediate_source:', immediate_source)
                     try:
-                        shutil.copy2(os.path.join(present, f), copy_to_dir)
+                        shutil.copy2(immediate_source, copy_to_dir)
                     except shutil.SameFileError:
                         continue
-    print('Done backing up current directory.')
+    print('Done backing up current directory.\n')
 
 def get_working_mvc_dir():
     # QQQ This should happen only on initialization.
