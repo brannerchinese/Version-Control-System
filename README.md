@@ -1,6 +1,6 @@
 ## Version Control System
 
-Simple version control system.
+Simple version control system. **[Not yet working.]**
 
 This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Make-a-Local-Version-Control-System-NZ1n98nFktQ), which some alums of [Hacker School](http://hackerschool.com) organized in the summer of 2014.
 
