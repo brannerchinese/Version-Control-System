@@ -16,8 +16,9 @@ This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Ma
 
 ### Future work.
 
- 1. It would be more efficient if the system archived only diffs rather than actual files. A diff-patching tool is needed to regenerate files.
+ 1. It would be more efficient if the system archived only diffs rather than actual files. A diff-patching tool is needed to regenerate files. But the code to copy files (`copy_files`) would have to be more complicated, and in particular something more sophisticated than `shutil.copytree` would be needed for traversing the directory.
  1. It seems that section 2.1 of the assignment ("Branches") is not meaningful without the capacity for merging, otherwise a given snapshot can only have one ancestor.
+ 1. It would be best if the whole present directory were backed up, rather than only a subdirectory `current_dir`. 
  1. The basic functionality described above has been tested manually. There is no test suite.
 
 [end]
