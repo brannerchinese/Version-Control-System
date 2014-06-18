@@ -1,10 +1,10 @@
 ## Version Control System
 
-Simple version control system.
+**Simple version control system.**
 
-This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Make-a-Local-Version-Control-System-NZ1n98nFktQ), which some alums of [Hacker School](http://hackerschool.com) organized in the summer of 2014. Please see the description at that link for the goals of the assignment and other completed versions of the project.
+This exercise was done as part of the [Iron Forger](https://hackpad.com/Week-3-Make-a-Local-Version-Control-System-NZ1n98nFktQ), which some alums of [Hacker School](http://hackerschool.com) organized in the summer of 2014. Please see the description at that link for the goals of the exercise and other completed versions of it.
 
-### How to install and run.
+### How to install and run
 
  1. Runs only under Python 3.3 and higher.
  1. In directory `vcs`, run as `./myvcs.py` at the command line. Program backs up the contents of directory `current_dir` to a "snapshot" in a numbered subdirectory of `.myvcs` and saves that subdirectory's number to a file `.myvcs/HEAD`. If `current_dir` does not exist, the program exits.
@@ -14,7 +14,7 @@ This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Ma
  1. To change the current snapshot to snapshot 3, use `./myvcs.py checkout 3`, etc. etc.
  1. To print the history of all snapshots from the current one backward until there are no more parent-snapshots found, use `./myvcs.py log`.
 
-### Future work.
+### Future work
 
  1. It would be more efficient if the system archived only diffs rather than actual files. A diff-patching tool is needed to regenerate files. But the code to copy files (`copy_files`) would have to be more complicated, and in particular something more sophisticated than `shutil.copytree` would be needed for traversing the directory.
  1. It seems that section 2.1 of the assignment ("Branches") is not meaningful without the capacity for merging, otherwise a given snapshot can only have one ancestor.
