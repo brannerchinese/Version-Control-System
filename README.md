@@ -7,7 +7,7 @@ This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Ma
 ### How to install and run.
 
  1. Runs only under Python 3.3 and higher.
- 1. In directory `vcs`, run as `./myvcs.py` at the command line. Program backs up the contents of directory `current_dir` to a "snapshot" in a numbered subdirectory of `.myvcs` and saves that subdirectory's number to a file `.myvcs/HEAD`.
+ 1. In directory `vcs`, run as `./myvcs.py` at the command line. Program backs up the contents of directory `current_dir` to a "snapshot" in a numbered subdirectory of `.myvcs` and saves that subdirectory's number to a file `.myvcs/HEAD`. If `current_dir` does not exist, the program exits.
  1. Successive runs of `./myvcs.py` create successive subdirectories and make successive snapshots. No attempt is made to see if the contents have changed, and all contents are saved entire. Using `./myvcs.py backup` will have the same effect. Current system date and time (in Unix time) are saved, too, to a file `DATE` in the new subdirectory, and the most recent value of `.myvcs/HEAD` is saved to a file `PARENT` in the new subdirectory.
  1. A message (like a Git commit-message) can be saved along with a snapshot by using `./myvcs.py backup -m "your message here"`. This message is saved to a file `MESSAGE` in the new subdirectory.
  1. To print the subdirectory-number of the current snapshot, without changing it, use `./myvcs.py current`.
