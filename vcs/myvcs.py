@@ -11,6 +11,7 @@ import difflib as D
 import os
 import argparse
 import shutil
+import time
 
 myvcs_ignore = {'.myvcs', '.myvcs.py.swp', '__pycache__', 'myvcs.py'}
 
@@ -91,16 +92,17 @@ def copy_files(args=None, source=None, destination=None, snapshot=None):
     shutil.copytree(source, destination)
     print('Copied files from\n    {}\nto\n    {}.'.
             format(source, destination))
-    # Store any message in MESSAGE
+    # Store any message in MESSAGE, parent (= current HEAD), and date (Unixtime)
     if message:
         with open(os.path.join(destination, 'MESSAGE'), 'w') as f:
             f.write(message)
-    # Declare parent (= current HEAD).
     with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
         parent = f.read()
         print('current HEAD => parent:', parent)
     with open(os.path.join(destination, 'PARENT'), 'w') as f:
         f.write(parent)
+    with open(os.path.join(destination, 'DATE'), 'w') as f:
+        f.write(str(time.time))
     # Update HEAD.
     with open(os.path.join('.myvcs', 'HEAD'), 'w') as f:
         f.write(str(snapshot))
