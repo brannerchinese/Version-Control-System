@@ -2,7 +2,7 @@
 
 Simple version control system.
 
-This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Make-a-Local-Version-Control-System-NZ1n98nFktQ), which some alums of [Hacker School](http://hackerschool.com) organized in the summer of 2014.
+This project was done as part of the [Iron Forger](https://hackpad.com/Week-3-Make-a-Local-Version-Control-System-NZ1n98nFktQ), which some alums of [Hacker School](http://hackerschool.com) organized in the summer of 2014. Please see the description at that link for the goals of the assignment and other completed versions of the project.
 
 ### How to install and run.
 
