@@ -1,7 +1,7 @@
 #! /usr/bin/env python
 # myvcs.py
 # David Prager Branner
-# 20140615
+# 20140617
 
 import sys
 if sys.version_info.major < 3 and sys.version_info.minor < 3:
@@ -20,6 +20,7 @@ def main(args=None):
             'latest': checkout,
             'backup': copy_files,
             'current': print_current_head,
+            'log': print_log,
             }
     if not args:
         copy_files()
@@ -66,8 +67,15 @@ def get_highest_snapshot():
         catalog.sort()
         return catalog[-1]
 
+def print_log(args=None):
+    pass
+
 def copy_files(args=None, source=None, destination=None, snapshot=None):
     """Copy all files between source and destination."""
+    if args and args[0] == '-m':
+        message = args[1].strip("'\"")
+    else:
+        message = None
     if not source:
         source = 'current_dir'
         if not os.path.exists('current_dir'):
@@ -83,33 +91,25 @@ def copy_files(args=None, source=None, destination=None, snapshot=None):
     shutil.copytree(source, destination)
     print('Copied files from\n    {}\nto\n    {}.'.
             format(source, destination))
+    # Store any message in MESSAGE
+    if message:
+        with open(os.path.join(destination, 'MESSAGE'), 'w') as f:
+            f.write(message)
+    # Declare parent (= current HEAD).
+    with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
+        parent = f.read()
+        print('current HEAD => parent:', parent)
+    with open(os.path.join(destination, 'PARENT'), 'w') as f:
+        f.write(parent)
+    # Update HEAD.
     with open(os.path.join('.myvcs', 'HEAD'), 'w') as f:
         f.write(str(snapshot))
+        print('saved new HEAD:', snapshot)
 
 def print_current_head(args=None):
     with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
         head = f.read()
     print(head)
-
-def defunct():
-    # Get list of all files in present directory.
-    directories = collections.deque([current_dir])
-    while directories:
-        next_dir = directories.popleft()
-        print('\nnow doing', next_dir)
-        all_files = os.listdir(next_dir)
-        print(directories, all_files)
-        for f in all_files:
-            if f in myvcs_ignore:
-                continue
-            print('\nfile:    {}'.format(f))
-            full_path = os.path.normpath(os.path.join(next_dir, f))
-            print('file:    {}'.
-                    format(full_path))
-            if os.path.isdir(full_path):
-                print('new directory:', f)
-                directories.append(full_path)
-                print(directories, all_files)
 
 if __name__ == '__main__':
     main(sys.argv[1:])
