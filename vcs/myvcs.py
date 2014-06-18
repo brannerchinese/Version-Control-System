@@ -12,8 +12,7 @@ import os
 import argparse
 import shutil
 import time
-
-myvcs_ignore = {'.myvcs', '.myvcs.py.swp', '__pycache__', 'myvcs.py'}
+import datetime
 
 def main(args=None):
     actions = {
@@ -69,7 +68,36 @@ def get_highest_snapshot():
         return catalog[-1]
 
 def print_log(args=None):
-    pass
+    """List parent, message, and date (if any), until no more parents found."""
+    with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
+        parent = f.read()
+        print('Current head: {}'.format(parent))
+    while parent:
+        log_line = ''
+        next_parent = os.path.join('.myvcs', str(parent), 'PARENT')
+        if os.path.exists(next_parent):
+            with open(next_parent, 'r') as f:
+                parent = f.read()
+                log_line += 'Parent: {}'.format(parent)
+        else:
+            parent = None
+            break
+        next_message = os.path.join('.myvcs', str(parent), 'MESSAGE')
+        if os.path.exists(next_message):
+            with open(next_message, 'r') as f:
+                message = f.read()
+        else:
+            message = '(none)'
+        log_line += '; Message: {}'.format(message)
+        next_date = os.path.join('.myvcs', str(parent), 'DATE')
+        if os.path.exists(next_date):
+            with open(next_date, 'r') as f:
+                date = f.read()
+                date = convert_from_unixtime(float(date))
+        else:
+            date = '(none)'
+        log_line += '; Date: {}'.format(date)
+        print(log_line)
 
 def copy_files(args=None, source=None, destination=None, snapshot=None):
     """Copy all files between source and destination."""
@@ -102,13 +130,26 @@ def copy_files(args=None, source=None, destination=None, snapshot=None):
     with open(os.path.join(destination, 'PARENT'), 'w') as f:
         f.write(parent)
     with open(os.path.join(destination, 'DATE'), 'w') as f:
-        f.write(str(time.time))
+        f.write(str(time.time()))
     # Update HEAD.
     with open(os.path.join('.myvcs', 'HEAD'), 'w') as f:
         f.write(str(snapshot))
         print('saved new HEAD:', snapshot)
 
+def convert_from_unixtime(unixtime, whole=True):
+    """Convert Unix time to human-readable string."""
+    if not whole:
+        # Date only, no time.
+        date = datetime.datetime.fromtimestamp(
+            unixtime).strftime('%Y%m%d')
+    else:
+        # Both date and time.
+        date = datetime.datetime.fromtimestamp(
+            unixtime).strftime('%Y%m%d-%H%M')
+    return date
+
 def print_current_head(args=None):
+    """Print current head."""
     with open(os.path.join('.myvcs', 'HEAD'), 'r') as f:
         head = f.read()
     print(head)
